@@ -1,0 +1,12 @@
+body {
+  font-family: sans-serif;
+  background: linear-gradient(to bottom, rgb(66, 66, 66), #999);
+  background-attachment: fixed;
+  color: white;
+}
+
+#message-box {
+  height: 200px;
+  max-width: 400px;
+  overflow-y: scroll;
+}

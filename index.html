@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cisco Broker Test</title>
+    <link rel="stylesheet" href="/style/style.css" />
+  </head>
+  <body>
+    <h1>Cisco Broker Test</h1>
+    <div id="app">
+      <div>
+        <ul id="message-box">
+          <li v-for="message in messages">
+            <b>{{ message.system }}:</b> {{ message.message }}
+          </li>
+        </ul>
+
+        <h3>
+          In case you want to emit event from Client, just type something using
+          and press Send Button
+        </h3>
+        <form @submit.prevent="sendMessage">
+          <input type="text" placeholder="Message..." v-model:value="message" />
+          <input type="submit" value="Send" />
+        </form>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+      function scrollToBottom() {
+        app.$nextTick(function() {
+          var messageBox = document.getElementById("message-box");
+          messageBox.scrollTop = messageBox.scrollHeight;
+        });
+      }
+
+      function getId() {
+        var text = "";
+        var possible =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (let i = 0; i < 3; i++) {
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+
+        return text;
+      }
+      var socket = null;
+      var app = new Vue({
+        el: "#app",
+        data: {
+          messages: [],
+          message: "",
+          appid: ""
+        },
+        methods: {
+          sendMessage: function() {
+            socket.emit("message", this.message);
+            this.message = "";
+          }
+        },
+        created: function() {
+          socket = io();
+        },
+        mounted: function() {
+          socket.emit("join", "Vue App - " + getId() + " ");
+
+          socket.on("message", function(message) {
+            // Messages sent from Client are emitted to all instances by the Server.
+            app.messages.push(message);
+
+            scrollToBottom();
+          });
+
+          socket.on("new-broker-message", function(message) {
+            // Messages emited by Broker -(Rabbit MQ via Node) - currently using simulator (scheduler)
+            app.messages.push(message);
+
+            scrollToBottom();
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
