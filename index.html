@@ -73,7 +73,7 @@
           });
 
           socket.on("new-broker-message", function(message) {
-            // Messages emited by Broker -(Rabbit MQ via Node) - currently using simulator (scheduler)
+            // Messages emited by Broker - (Rabbit MQ via Node) - currently using simulator (scheduler) with */5 * * * * *
             app.messages.push(message);
 
             scrollToBottom();
